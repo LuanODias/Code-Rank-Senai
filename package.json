@@ -8,7 +8,8 @@
     "dev": "nodemon src/server.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,9 @@
     "url": "https://github.com/LuanODias/Code-Rank-Senai/issues"
   },
   "homepage": "https://github.com/LuanODias/Code-Rank-Senai#readme",
+  "lint-staged": {
+    "*.js": "eslint --max-warnings=0"
+  },
   "dependencies": {
     "dotenv": "^17.3.1",
     "express": "^5.2.1"
@@ -30,6 +34,8 @@
     "@eslint/js": "^10.0.1",
     "eslint": "^10.0.3",
     "globals": "^17.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "nodemon": "^3.1.14"
   }
 }
