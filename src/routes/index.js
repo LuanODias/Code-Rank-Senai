@@ -1,12 +1,12 @@
 const { Router } = require('express');
-const exampleRoutes = require('./example.routes');
+const teacherRoutes = require('./teacher.routes');
 
 const router = Router();
 
-router.get('/health', (req, res) => {
+router.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-router.use('/examples', exampleRoutes);
+router.use('/teachers', teacherRoutes);
 
 module.exports = router;

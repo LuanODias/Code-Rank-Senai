@@ -1,14 +1,18 @@
 const express = require('express');
+const { toNodeHandler } = require('better-auth/node');
+const { getAuth } = require('./config/auth');
 const routes = require('./routes');
-const errorHandler = require('./middlewares/errorHandler');
+const { errorHandler } = require('./middlewares/errorHandler');
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api', routes);
+const auth = getAuth();
+app.all('/api/auth/*', toNodeHandler(auth));
 
+app.use('/api', routes);
 app.use(errorHandler);
 
 module.exports = app;

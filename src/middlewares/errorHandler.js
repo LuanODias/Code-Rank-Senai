@@ -1,13 +1,16 @@
-// eslint-disable-next-line no-unused-vars
-const errorHandler = (err, req, res, next) => {
-  const status = err.status || 500;
-  const message = err.message || 'Internal Server Error';
+const { AppError } = require('../utils/AppError');
+
+const errorHandler = (err, _req, res, _next) => {
+  if (err instanceof AppError) {
+    res.status(err.statusCode).json({ error: err.message });
+    return;
+  }
 
   if (process.env.NODE_ENV !== 'production') {
     console.error(err.stack);
   }
 
-  res.status(status).json({ error: message });
+  res.status(500).json({ error: 'Internal Server Error' });
 };
 
-module.exports = errorHandler;
+module.exports = { errorHandler };

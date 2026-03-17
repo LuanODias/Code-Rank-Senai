@@ -10,9 +10,7 @@ module.exports = [
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'commonjs',
-      globals: {
-        ...globals.node,
-      },
+      globals: { ...globals.node },
     },
     rules: {
       'no-console': 'off',
@@ -24,6 +22,6 @@ module.exports = [
     },
   },
   {
-    ignores: ['node_modules/'],
+    ignores: ['node_modules/', 'dist/'],
   },
 ];

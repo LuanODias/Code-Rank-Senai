@@ -33,6 +33,8 @@
     "*.js": "eslint --max-warnings=0"
   },
   "dependencies": {
+    "@prisma/client": "^7.5.0",
+    "better-auth": "^1.5.5",
     "dotenv": "^17.3.1",
     "express": "^5.2.1"
   },
@@ -48,6 +50,7 @@
     "globals": "^17.4.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "prisma": "^7.5.0"
   }
 }
