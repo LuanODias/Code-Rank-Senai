@@ -15,6 +15,7 @@ const auth = getAuth();
 app.all('/api/auth/*splat', toNodeHandler(auth));
 
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/api/docs.json', (req, res) => res.json(swaggerSpec));
 
 app.use('/api', routes);
 app.use(errorHandler);
