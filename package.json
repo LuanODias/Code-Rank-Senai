@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "husky"
+    "prepare": "husky",
+    "commit": "cz"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,11 @@
     "url": "https://github.com/LuanODias/Code-Rank-Senai/issues"
   },
   "homepage": "https://github.com/LuanODias/Code-Rank-Senai#readme",
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
   "lint-staged": {
     "*.js": "eslint --max-warnings=0"
   },
@@ -31,7 +37,11 @@
     "express": "^5.2.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
     "@eslint/js": "^10.0.1",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
