@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const auth = getAuth();
-app.all('/api/auth/*', toNodeHandler(auth));
+app.all('/api/auth/*splat', toNodeHandler(auth));
 
 app.use('/api', routes);
 app.use(errorHandler);
