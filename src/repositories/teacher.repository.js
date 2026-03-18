@@ -20,8 +20,15 @@ class TeacherRepository {
 
   async create(userId) {
     return this.prisma.teacher.create({
-      data: { userId },
+      data: { userId, mustChangePassword: true },
       include: { user: true },
+    });
+  }
+
+  async clearMustChangePassword(userId) {
+    await this.prisma.teacher.update({
+      where: { userId },
+      data: { mustChangePassword: false },
     });
   }
 
