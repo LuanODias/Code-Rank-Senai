@@ -8,7 +8,9 @@
     "dev": "nodemon src/server.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watchAll",
+    "test:coverage": "jest --coverage",
     "prepare": "husky",
     "commit": "cz"
   },
@@ -29,6 +31,18 @@
       "path": "cz-conventional-changelog"
     }
   },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "clearMocks": true,
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/__tests__/**",
+      "!src/server.js"
+    ]
+  },
   "lint-staged": {
     "*.js": "eslint --max-warnings=0"
   },
@@ -47,6 +61,7 @@
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
     "@eslint/js": "^10.0.1",
+    "@faker-js/faker": "^8.4.1",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^10.0.3",
@@ -54,6 +69,7 @@
     "eslint-plugin-prettier": "^5.5.5",
     "globals": "^17.4.0",
     "husky": "^9.1.7",
+    "jest": "^30.3.0",
     "lint-staged": "^16.4.0",
     "nodemon": "^3.1.14",
     "prisma": "^7.5.0",
