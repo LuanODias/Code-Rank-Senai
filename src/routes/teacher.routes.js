@@ -35,18 +35,29 @@ router.use(requireAdminAccess(auth));
  *         email:
  *           type: string
  *           example: joao@senai.com
+ *         mustChangePassword:
+ *           type: boolean
+ *           example: true
  *         createdAt:
  *           type: string
  *           format: date-time
  *         updatedAt:
  *           type: string
  *           format: date-time
+ *     TeacherCreated:
+ *       allOf:
+ *         - $ref: '#/components/schemas/Teacher'
+ *         - type: object
+ *           properties:
+ *             defaultPassword:
+ *               type: string
+ *               description: Senha gerada para o primeiro acesso — comunique ao professor
+ *               example: Senai@482931
  *     CreateTeacher:
  *       type: object
  *       required:
  *         - name
  *         - email
- *         - password
  *       properties:
  *         name:
  *           type: string
@@ -54,9 +65,6 @@ router.use(requireAdminAccess(auth));
  *         email:
  *           type: string
  *           example: joao@senai.com
- *         password:
- *           type: string
- *           example: senha123
  *     UpdateTeacher:
  *       type: object
  *       properties:
@@ -86,7 +94,7 @@ router.use(requireAdminAccess(auth));
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Teacher'
+ *               $ref: '#/components/schemas/TeacherCreated'
  *       409:
  *         description: Email já cadastrado
  *         content:
