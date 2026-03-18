@@ -12,6 +12,7 @@ const env = {
   DATABASE_URL: getRequired('DATABASE_URL'),
   BETTER_AUTH_SECRET: getRequired('BETTER_AUTH_SECRET'),
   BETTER_AUTH_URL: getRequired('BETTER_AUTH_URL'),
+  ADMIN_SECRET: getRequired('ADMIN_SECRET'),
 };
 
 module.exports = { env };
