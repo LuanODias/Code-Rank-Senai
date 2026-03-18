@@ -12,6 +12,12 @@ module.exports = [
       sourceType: 'commonjs',
       globals: { ...globals.node },
     },
+  },
+  {
+    files: ['**/__tests__/**/*.test.js'],
+    languageOptions: {
+      globals: { ...globals.node, ...globals.jest },
+    },
     rules: {
       'no-console': 'off',
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
