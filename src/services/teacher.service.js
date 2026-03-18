@@ -1,4 +1,7 @@
+const { randomInt } = require('crypto');
 const { AppError } = require('../utils/AppError');
+
+const generateDefaultPassword = () => `Senai@${randomInt(100000, 999999)}`;
 
 class TeacherService {
   constructor(teacherRepository, auth) {
@@ -10,18 +13,20 @@ class TeacherService {
     const existing = await this.teacherRepository.findByEmail(data.email);
     if (existing) throw new AppError(409, 'Email already in use');
 
+    const defaultPassword = generateDefaultPassword();
+
     const result = await this.auth.api.signUpEmail({
       body: {
         name: data.name,
         email: data.email,
-        password: data.password,
+        password: defaultPassword,
       },
     });
 
     await this.teacherRepository.updateUserRole(result.user.id, 'teacher');
 
     const teacher = await this.teacherRepository.create(result.user.id);
-    return this.toDTO(teacher);
+    return this.toDTO(teacher, defaultPassword);
   }
 
   async getAll() {
@@ -48,12 +53,14 @@ class TeacherService {
     await this.teacherRepository.remove(id);
   }
 
-  toDTO(teacher) {
+  toDTO(teacher, defaultPassword) {
     return {
       id: teacher.id,
       userId: teacher.userId,
       name: teacher.user.name,
       email: teacher.user.email,
+      mustChangePassword: teacher.mustChangePassword,
+      ...(defaultPassword && { defaultPassword }),
       createdAt: teacher.createdAt,
       updatedAt: teacher.updatedAt,
     };
