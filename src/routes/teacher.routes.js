@@ -1,15 +1,13 @@
 const { Router } = require('express');
 const { makeTeacherController } = require('../factories/teacher.factory');
-const { requireAuth } = require('../middlewares/requireAuth');
-const { requireRole } = require('../middlewares/requireRole');
+const { requireAdminAccess } = require('../middlewares/requireAdminAccess');
 const { getAuth } = require('../config/auth');
 
 const router = Router();
 const auth = getAuth();
 const controller = makeTeacherController();
 
-router.use(requireAuth(auth));
-router.use(requireRole(['admin', 'developer']));
+router.use(requireAdminAccess(auth));
 
 /**
  * @openapi
