@@ -104,4 +104,55 @@ router.post('/logout', requireAuth(auth), (req, res, next) =>
   controller.logout(req, res, next),
 );
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     ChangePasswordRequest:
+ *       type: object
+ *       required:
+ *         - currentPassword
+ *         - newPassword
+ *       properties:
+ *         currentPassword:
+ *           type: string
+ *           example: Senai@482931
+ *         newPassword:
+ *           type: string
+ *           example: minhasenha123
+ */
+
+/**
+ * @openapi
+ * /change-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Troca a senha do usuário autenticado
+ *     description: |
+ *       Obrigatório no primeiro acesso do professor (`mustChangePassword: true`).
+ *       Requer autenticação via `Authorization: Bearer <token>`.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ChangePasswordRequest'
+ *     responses:
+ *       200:
+ *         description: Senha alterada com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Password changed successfully.
+ *       401:
+ *         description: Não autenticado ou senha atual incorreta
+ */
+router.post('/change-password', requireAuth(auth), (req, res, next) =>
+  controller.changePassword(req, res, next),
+);
+
 module.exports = router;
