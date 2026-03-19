@@ -1,0 +1,146 @@
+jest.mock('better-auth/node', () => ({
+  fromNodeHeaders: jest.fn((h) => h),
+}));
+
+jest.mock('../../config/env', () => ({
+  env: { ADMIN_SECRET: 'test-secret' },
+}));
+
+jest.mock('../../config/auth', () => ({
+  getAuth: jest.fn(() => ({})),
+}));
+
+const mockController = {
+  create: jest.fn(),
+  getAll: jest.fn(),
+  getById: jest.fn(),
+  update: jest.fn(),
+  remove: jest.fn(),
+};
+
+jest.mock('../../factories/teacher.factory', () => ({
+  makeTeacherController: jest.fn(() => mockController),
+}));
+
+const mockRequireAdminAccess = jest.fn((req, res, next) => next());
+jest.mock('../../middlewares/requireAdminAccess', () => ({
+  requireAdminAccess: jest.fn(() => mockRequireAdminAccess),
+}));
+
+const router = require('../../routes/teacher.routes');
+
+const findRoute = (path, method) =>
+  router.stack
+    .filter((l) => l.route?.path === path)
+    .find((l) => l.route.methods[method])?.route;
+
+describe('teacher.routes', () => {
+  describe('router-level middleware', () => {
+    it('should apply requireAdminAccess to all routes via router.use', () => {
+      const middlewareLayer = router.stack.find(
+        (l) => !l.route && l.handle === mockRequireAdminAccess,
+      );
+      expect(middlewareLayer).toBeDefined();
+    });
+  });
+
+  describe('POST /', () => {
+    it('should register the route', () => {
+      const route = findRoute('/', 'post');
+      expect(route).toBeDefined();
+      expect(route.methods.post).toBe(true);
+    });
+
+    it('should call controller.create', () => {
+      const route = findRoute('/', 'post');
+      const handler = route.stack[0].handle;
+      const req = {};
+      const res = {};
+      const next = jest.fn();
+
+      handler(req, res, next);
+
+      expect(mockController.create).toHaveBeenCalledWith(req, res, next);
+    });
+  });
+
+  describe('GET /', () => {
+    it('should register the route', () => {
+      const route = findRoute('/', 'get');
+      expect(route).toBeDefined();
+      expect(route.methods.get).toBe(true);
+    });
+
+    it('should call controller.getAll', () => {
+      const route = findRoute('/', 'get');
+      const handler = route.stack[0].handle;
+      const req = {};
+      const res = {};
+      const next = jest.fn();
+
+      handler(req, res, next);
+
+      expect(mockController.getAll).toHaveBeenCalledWith(req, res, next);
+    });
+  });
+
+  describe('GET /:id', () => {
+    it('should register the route', () => {
+      const route = findRoute('/:id', 'get');
+      expect(route).toBeDefined();
+      expect(route.methods.get).toBe(true);
+    });
+
+    it('should call controller.getById', () => {
+      const route = findRoute('/:id', 'get');
+      const handler = route.stack[0].handle;
+      const req = {};
+      const res = {};
+      const next = jest.fn();
+
+      handler(req, res, next);
+
+      expect(mockController.getById).toHaveBeenCalledWith(req, res, next);
+    });
+  });
+
+  describe('PUT /:id', () => {
+    it('should register the route', () => {
+      const route = findRoute('/:id', 'put');
+      expect(route).toBeDefined();
+      expect(route.methods.put).toBe(true);
+    });
+
+    it('should call controller.update', () => {
+      const route = findRoute('/:id', 'put');
+      const handler = route.stack[0].handle;
+      const req = {};
+      const res = {};
+      const next = jest.fn();
+
+      handler(req, res, next);
+
+      expect(mockController.update).toHaveBeenCalledWith(req, res, next);
+    });
+  });
+
+  describe('DELETE /:id', () => {
+    it('should register the route', () => {
+      const route = findRoute('/:id', 'delete');
+      expect(route).toBeDefined();
+      expect(route.methods.delete).toBe(true);
+    });
+
+    it('should call controller.remove', () => {
+      const route = findRoute('/:id', 'delete');
+      const handler = route.stack[0].handle;
+      const req = {};
+      const res = {};
+      const next = jest.fn();
+
+      handler(req, res, next);
+
+      expect(mockController.remove).toHaveBeenCalledWith(req, res, next);
+    });
+  });
+});

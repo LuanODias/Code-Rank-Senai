@@ -1,0 +1,50 @@
+const mockAuthRouter = jest.fn();
+const mockAdminRouter = jest.fn();
+const mockTeacherRouter = jest.fn();
+
+jest.mock('../../routes/auth.routes', () => mockAuthRouter);
+jest.mock('../../routes/admin.routes', () => mockAdminRouter);
+jest.mock('../../routes/teacher.routes', () => mockTeacherRouter);
+
+const router = require('../../routes/index');
+
+describe('index.routes', () => {
+  describe('GET /health', () => {
+    it('should register the route', () => {
+      const route = router.stack.find(
+        (l) => l.route?.path === '/health',
+      )?.route;
+      expect(route).toBeDefined();
+      expect(route.methods.get).toBe(true);
+    });
+
+    it('should return { status: "ok" }', () => {
+      const route = router.stack.find(
+        (l) => l.route?.path === '/health',
+      )?.route;
+      const handler = route.stack[0].handle;
+      const res = { json: jest.fn() };
+
+      handler({}, res);
+
+      expect(res.json).toHaveBeenCalledWith({ status: 'ok' });
+    });
+  });
+
+  describe('sub-routers', () => {
+    it('should mount auth routes at /', () => {
+      const layer = router.stack.find((l) => l.handle === mockAuthRouter);
+      expect(layer).toBeDefined();
+    });
+
+    it('should mount admin routes at /admin', () => {
+      const layer = router.stack.find((l) => l.handle === mockAdminRouter);
+      expect(layer).toBeDefined();
+    });
+
+    it('should mount teacher routes at /teachers', () => {
+      const layer = router.stack.find((l) => l.handle === mockTeacherRouter);
+      expect(layer).toBeDefined();
+    });
+  });
+});
