@@ -1,5 +1,5 @@
 const { faker } = require('@faker-js/faker');
-const { TeacherController } = require('../controllers/teacher.controller');
+const { TeacherController } = require('../../controllers/teacher.controller');
 
 describe('TeacherController', () => {
   const makeTeacher = () => ({

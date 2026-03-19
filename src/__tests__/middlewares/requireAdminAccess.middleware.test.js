@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 const TEST_SECRET = 'test-admin-secret';
 
-jest.mock('../config/env', () => ({
+jest.mock('../../config/env', () => ({
   env: { ADMIN_SECRET: 'test-admin-secret' },
 }));
 
@@ -10,7 +10,7 @@ jest.mock('better-auth/node', () => ({
   fromNodeHeaders: jest.fn((headers) => headers),
 }));
 
-const { requireAdminAccess } = require('../middlewares/requireAdminAccess');
+const { requireAdminAccess } = require('../../middlewares/requireAdminAccess');
 
 describe('requireAdminAccess middleware', () => {
   const makeAuth = (session) => ({

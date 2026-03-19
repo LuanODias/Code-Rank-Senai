@@ -1,4 +1,4 @@
-const { requireAuth } = require('../middlewares/requireAuth');
+const { requireAuth } = require('../../middlewares/requireAuth');
 
 jest.mock('better-auth/node', () => ({
   fromNodeHeaders: jest.fn((headers) => headers),

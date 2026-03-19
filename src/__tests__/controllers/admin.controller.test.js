@@ -1,5 +1,5 @@
 const { faker } = require('@faker-js/faker');
-const { AdminController } = require('../controllers/admin.controller');
+const { AdminController } = require('../../controllers/admin.controller');
 
 describe('AdminController', () => {
   const makeAdmin = () => ({

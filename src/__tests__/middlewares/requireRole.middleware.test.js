@@ -1,4 +1,4 @@
-const { requireRole } = require('../middlewares/requireRole');
+const { requireRole } = require('../../middlewares/requireRole');
 
 describe('requireRole middleware', () => {
   const makeSut = (roles, user) => {

@@ -1,5 +1,5 @@
-const { errorHandler } = require('../middlewares/errorHandler');
-const { AppError } = require('../utils/AppError');
+const { errorHandler } = require('../../middlewares/errorHandler');
+const { AppError } = require('../../utils/AppError');
 
 describe('errorHandler middleware', () => {
   const makeSut = () => {

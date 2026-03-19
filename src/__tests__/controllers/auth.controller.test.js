@@ -1,5 +1,5 @@
 const { faker } = require('@faker-js/faker');
-const { AuthController } = require('../controllers/auth.controller');
+const { AuthController } = require('../../controllers/auth.controller');
 
 describe('AuthController', () => {
   class AuthServiceStub {
