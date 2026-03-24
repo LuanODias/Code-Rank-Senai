@@ -1,6 +1,11 @@
 const { Router } = require('express');
 const { makeTeacherController } = require('../factories/teacher.factory');
 const { requireAdminAccess } = require('../middlewares/requireAdminAccess');
+const { validate } = require('../middlewares/validate');
+const {
+  createTeacherSchema,
+  updateTeacherSchema,
+} = require('../schemas/teacher.schemas');
 const { getAuth } = require('../config/auth');
 
 const router = Router();
@@ -106,7 +111,9 @@ router.use(requireAdminAccess(auth));
  *       403:
  *         description: Sem permissão
  */
-router.post('/', (req, res, next) => controller.create(req, res, next));
+router.post('/', validate(createTeacherSchema), (req, res, next) =>
+  controller.create(req, res, next),
+);
 
 /**
  * @openapi
@@ -200,7 +207,9 @@ router.get('/:id', (req, res, next) => controller.getById(req, res, next));
  *       403:
  *         description: Sem permissão
  */
-router.put('/:id', (req, res, next) => controller.update(req, res, next));
+router.put('/:id', validate(updateTeacherSchema), (req, res, next) =>
+  controller.update(req, res, next),
+);
 
 /**
  * @openapi
