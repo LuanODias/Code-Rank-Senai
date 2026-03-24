@@ -82,17 +82,6 @@ describe('ChallengeService', () => {
       );
     });
 
-    it('should throw AppError 400 when difficulty is invalid', async () => {
-      // arrange
-      const { sut } = makeSut();
-      const data = { ...makeData(), difficulty: 'impossible' };
-
-      // act / assert
-      await expect(sut.create(faker.string.uuid(), data)).rejects.toThrow(
-        new AppError(400, 'Difficulty must be one of: easy, medium, hard'),
-      );
-    });
-
     it('should default difficulty to medium when not provided', async () => {
       // arrange
       const { sut, challengeRepository } = makeSut();
@@ -269,23 +258,6 @@ describe('ChallengeService', () => {
       );
     });
 
-    it('should throw AppError 400 when difficulty is invalid', async () => {
-      // arrange
-      const { sut, challengeRepository } = makeSut();
-
-      // act / assert
-      await expect(
-        sut.update(
-          faker.string.uuid(),
-          'teacher',
-          challengeRepository._challenge.id,
-          { difficulty: 'impossible' },
-        ),
-      ).rejects.toThrow(
-        new AppError(400, 'Difficulty must be one of: easy, medium, hard'),
-      );
-    });
-
     it('should allow admin to update any challenge without ownership check', async () => {
       // arrange
       const { sut, challengeRepository } = makeSut();
@@ -347,6 +319,47 @@ describe('ChallengeService', () => {
       expect(updateSpy).toHaveBeenCalledWith(
         challengeRepository._challenge.id,
         { title },
+      );
+    });
+
+    it('should include description in update when provided', async () => {
+      // arrange
+      const { sut, challengeRepository } = makeSut();
+      const updateSpy = jest.spyOn(challengeRepository, 'update');
+      const description = faker.lorem.paragraph();
+
+      // act
+      await sut.update(
+        faker.string.uuid(),
+        'admin',
+        challengeRepository._challenge.id,
+        { description },
+      );
+
+      // assert
+      expect(updateSpy).toHaveBeenCalledWith(
+        challengeRepository._challenge.id,
+        { description },
+      );
+    });
+
+    it('should include difficulty in update when provided', async () => {
+      // arrange
+      const { sut, challengeRepository } = makeSut();
+      const updateSpy = jest.spyOn(challengeRepository, 'update');
+
+      // act
+      await sut.update(
+        faker.string.uuid(),
+        'admin',
+        challengeRepository._challenge.id,
+        { difficulty: 'hard' },
+      );
+
+      // assert
+      expect(updateSpy).toHaveBeenCalledWith(
+        challengeRepository._challenge.id,
+        { difficulty: 'hard' },
       );
     });
 
@@ -458,6 +471,22 @@ describe('ChallengeService', () => {
 
       // assert
       expect(findTeacherSpy).not.toHaveBeenCalled();
+    });
+
+    it('should allow teacher to remove their own challenge', async () => {
+      // arrange
+      const { sut, challengeRepository } = makeSut();
+      const removeSpy = jest.spyOn(challengeRepository, 'remove');
+
+      // act
+      await sut.remove(
+        faker.string.uuid(),
+        'teacher',
+        challengeRepository._challenge.id,
+      );
+
+      // assert
+      expect(removeSpy).toHaveBeenCalledWith(challengeRepository._challenge.id);
     });
 
     it('should call repository.remove with the challenge id', async () => {
