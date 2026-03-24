@@ -333,6 +333,26 @@ describe('SubmissionService', () => {
       );
     });
 
+    it('should fallback to 10 points when difficulty is unknown', async () => {
+      // arrange
+      const { sut, submissionRepository } = makeSut();
+      const challenge = makeChallengeRecord({ difficulty: 'unknown' });
+      const submission = makeSubmissionRecord({ challenge });
+      jest
+        .spyOn(submissionRepository, 'findById')
+        .mockResolvedValueOnce(submission);
+      const updateSpy = jest.spyOn(submissionRepository, 'update');
+
+      // act
+      await sut.evaluate(submission.id, { status: 'accepted' });
+
+      // assert
+      expect(updateSpy).toHaveBeenCalledWith(
+        submission.id,
+        expect.objectContaining({ points: 10 }),
+      );
+    });
+
     it('should use custom points when provided', async () => {
       // arrange
       const { sut, submissionRepository } = makeSut();

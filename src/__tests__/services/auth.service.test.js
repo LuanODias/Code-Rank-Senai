@@ -84,6 +84,21 @@ describe('AuthService', () => {
       expect(result.user.mustChangePassword).toBe(true);
     });
 
+    it('should return mustChangePassword false when teacher record is not found', async () => {
+      // arrange
+      const user = makeUser('teacher');
+      const { sut, authRepository } = makeSut({ user, token: 'token' });
+      jest
+        .spyOn(authRepository, 'findTeacherByUserId')
+        .mockResolvedValueOnce(null);
+
+      // act
+      const result = await sut.login(user.email, 'password');
+
+      // assert
+      expect(result.user.mustChangePassword).toBe(false);
+    });
+
     it('should not call findTeacherByUserId for non-teacher role', async () => {
       // arrange
       const user = makeUser('admin');
