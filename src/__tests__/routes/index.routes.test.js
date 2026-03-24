@@ -1,10 +1,12 @@
 const mockAuthRouter = jest.fn();
 const mockAdminRouter = jest.fn();
 const mockTeacherRouter = jest.fn();
+const mockChallengeRouter = jest.fn();
 
 jest.mock('../../routes/auth.routes', () => mockAuthRouter);
 jest.mock('../../routes/admin.routes', () => mockAdminRouter);
 jest.mock('../../routes/teacher.routes', () => mockTeacherRouter);
+jest.mock('../../routes/challenge.routes', () => mockChallengeRouter);
 
 const router = require('../../routes/index');
 
@@ -44,6 +46,11 @@ describe('index.routes', () => {
 
     it('should mount teacher routes at /teachers', () => {
       const layer = router.stack.find((l) => l.handle === mockTeacherRouter);
+      expect(layer).toBeDefined();
+    });
+
+    it('should mount challenge routes at /challenges', () => {
+      const layer = router.stack.find((l) => l.handle === mockChallengeRouter);
       expect(layer).toBeDefined();
     });
   });
