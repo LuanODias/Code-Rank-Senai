@@ -1,5 +1,10 @@
 const { Router } = require('express');
 const { makeAdminController } = require('../factories/admin.factory');
+const { validate } = require('../middlewares/validate');
+const {
+  createAdminSchema,
+  generateTokenSchema,
+} = require('../schemas/admin.schemas');
 const { env } = require('../config/env');
 
 const router = Router();
@@ -105,8 +110,11 @@ const requireAdminSecret = (req, res, next) => {
  *       409:
  *         description: Email já cadastrado
  */
-router.post('/', requireAdminSecret, (req, res, next) =>
-  controller.create(req, res, next),
+router.post(
+  '/',
+  requireAdminSecret,
+  validate(createAdminSchema),
+  (req, res, next) => controller.create(req, res, next),
 );
 
 /**
@@ -171,8 +179,11 @@ router.delete('/:userId', requireAdminSecret, (req, res, next) =>
  *       401:
  *         description: Admin secret inválido
  */
-router.post('/token', requireAdminSecret, (req, res, next) =>
-  controller.generateToken(req, res, next),
+router.post(
+  '/token',
+  requireAdminSecret,
+  validate(generateTokenSchema),
+  (req, res, next) => controller.generateToken(req, res, next),
 );
 
 module.exports = router;
