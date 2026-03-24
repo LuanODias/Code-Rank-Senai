@@ -1,6 +1,11 @@
 const { Router } = require('express');
 const { makeAuthController } = require('../factories/auth.factory');
 const { requireAuth } = require('../middlewares/requireAuth');
+const { validate } = require('../middlewares/validate');
+const {
+  loginSchema,
+  changePasswordSchema,
+} = require('../schemas/auth.schemas');
 const { getAuth } = require('../config/auth');
 
 const router = Router();
@@ -86,7 +91,9 @@ const controller = makeAuthController();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/login', (req, res, next) => controller.login(req, res, next));
+router.post('/login', validate(loginSchema), (req, res, next) =>
+  controller.login(req, res, next),
+);
 
 /**
  * @openapi
@@ -151,8 +158,11 @@ router.post('/logout', requireAuth(auth), (req, res, next) =>
  *       401:
  *         description: Não autenticado ou senha atual incorreta
  */
-router.post('/change-password', requireAuth(auth), (req, res, next) =>
-  controller.changePassword(req, res, next),
+router.post(
+  '/change-password',
+  requireAuth(auth),
+  validate(changePasswordSchema),
+  (req, res, next) => controller.changePassword(req, res, next),
 );
 
 module.exports = router;
