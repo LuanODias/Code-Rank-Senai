@@ -2,6 +2,11 @@ const { Router } = require('express');
 const { makeChallengeController } = require('../factories/challenge.factory');
 const { requireAuth } = require('../middlewares/requireAuth');
 const { requireRole } = require('../middlewares/requireRole');
+const { validate } = require('../middlewares/validate');
+const {
+  createChallengeSchema,
+  updateChallengeSchema,
+} = require('../schemas/challenge.schemas');
 const { getAuth } = require('../config/auth');
 
 const router = Router();
@@ -116,7 +121,9 @@ router.use(requireRole(['teacher', 'admin', 'developer']));
  *       403:
  *         description: Sem permissão
  */
-router.post('/', (req, res, next) => controller.create(req, res, next));
+router.post('/', validate(createChallengeSchema), (req, res, next) =>
+  controller.create(req, res, next),
+);
 
 /**
  * @openapi
@@ -218,7 +225,9 @@ router.get('/:id', (req, res, next) => controller.getById(req, res, next));
  *       403:
  *         description: Sem permissão
  */
-router.put('/:id', (req, res, next) => controller.update(req, res, next));
+router.put('/:id', validate(updateChallengeSchema), (req, res, next) =>
+  controller.update(req, res, next),
+);
 
 /**
  * @openapi
