@@ -5,6 +5,8 @@ const teacherRoutes = require('./teacher.routes');
 const challengeRoutes = require('./challenge.routes');
 const studentRoutes = require('./student.routes');
 const submissionRoutes = require('./submission.routes');
+const turmaRoutes = require('./turma.routes');
+const rankingRoutes = require('./ranking.routes');
 
 const router = Router();
 
@@ -18,5 +20,7 @@ router.use('/teachers', teacherRoutes);
 router.use('/challenges', challengeRoutes);
 router.use('/students', studentRoutes);
 router.use('/submissions', submissionRoutes);
+router.use('/turmas', turmaRoutes);
+router.use('/rankings', rankingRoutes);
 
 module.exports = router;
