@@ -3,6 +3,8 @@ const authRoutes = require('./auth.routes');
 const adminRoutes = require('./admin.routes');
 const teacherRoutes = require('./teacher.routes');
 const challengeRoutes = require('./challenge.routes');
+const studentRoutes = require('./student.routes');
+const submissionRoutes = require('./submission.routes');
 
 const router = Router();
 
@@ -14,5 +16,7 @@ router.use('/', authRoutes);
 router.use('/admin', adminRoutes);
 router.use('/teachers', teacherRoutes);
 router.use('/challenges', challengeRoutes);
+router.use('/students', studentRoutes);
+router.use('/submissions', submissionRoutes);
 
 module.exports = router;
