@@ -2,6 +2,11 @@ jest.mock('../../config/env', () => ({
   env: { ADMIN_SECRET: 'test-secret' },
 }));
 
+const mockValidate = jest.fn((req, res, next) => next());
+jest.mock('../../middlewares/validate', () => ({
+  validate: jest.fn(() => mockValidate),
+}));
+
 jest.mock('../../config/auth', () => ({
   getAuth: jest.fn(() => ({})),
 }));
@@ -37,8 +42,8 @@ describe('admin.routes', () => {
 
     it('should apply requireAdminSecret middleware', () => {
       const route = findRoute('/', 'post');
-      // inline middleware + handler
-      expect(route.stack).toHaveLength(2);
+      // requireAdminSecret + validate + handler
+      expect(route.stack).toHaveLength(3);
     });
 
     it('should return 401 when X-Admin-Secret is wrong', () => {
@@ -69,7 +74,7 @@ describe('admin.routes', () => {
 
     it('should call controller.create', () => {
       const route = findRoute('/', 'post');
-      const handler = route.stack[1].handle;
+      const handler = route.stack[route.stack.length - 1].handle;
       const req = {};
       const res = {};
       const next = jest.fn();
@@ -94,7 +99,7 @@ describe('admin.routes', () => {
 
     it('should call controller.remove', () => {
       const route = findRoute('/:userId', 'delete');
-      const handler = route.stack[1].handle;
+      const handler = route.stack[route.stack.length - 1].handle;
       const req = {};
       const res = {};
       const next = jest.fn();
@@ -114,12 +119,13 @@ describe('admin.routes', () => {
 
     it('should apply requireAdminSecret middleware', () => {
       const route = findRoute('/token', 'post');
-      expect(route.stack).toHaveLength(2);
+      // requireAdminSecret + validate + handler
+      expect(route.stack).toHaveLength(3);
     });
 
     it('should call controller.generateToken', () => {
       const route = findRoute('/token', 'post');
-      const handler = route.stack[1].handle;
+      const handler = route.stack[route.stack.length - 1].handle;
       const req = {};
       const res = {};
       const next = jest.fn();

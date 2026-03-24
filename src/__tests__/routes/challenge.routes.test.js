@@ -6,6 +6,11 @@ jest.mock('../../config/auth', () => ({
   getAuth: jest.fn(() => ({})),
 }));
 
+const mockValidate = jest.fn((req, res, next) => next());
+jest.mock('../../middlewares/validate', () => ({
+  validate: jest.fn(() => mockValidate),
+}));
+
 const mockController = {
   create: jest.fn(),
   getAll: jest.fn(),
@@ -61,7 +66,7 @@ describe('challenge.routes', () => {
 
     it('should call controller.create', () => {
       const route = findRoute('/', 'post');
-      const handler = route.stack[0].handle;
+      const handler = route.stack[route.stack.length - 1].handle;
       const req = {};
       const res = {};
       const next = jest.fn();
@@ -81,7 +86,7 @@ describe('challenge.routes', () => {
 
     it('should call controller.getAll', () => {
       const route = findRoute('/', 'get');
-      const handler = route.stack[0].handle;
+      const handler = route.stack[route.stack.length - 1].handle;
       const req = {};
       const res = {};
       const next = jest.fn();
@@ -101,7 +106,7 @@ describe('challenge.routes', () => {
 
     it('should call controller.getById', () => {
       const route = findRoute('/:id', 'get');
-      const handler = route.stack[0].handle;
+      const handler = route.stack[route.stack.length - 1].handle;
       const req = {};
       const res = {};
       const next = jest.fn();
@@ -121,7 +126,7 @@ describe('challenge.routes', () => {
 
     it('should call controller.update', () => {
       const route = findRoute('/:id', 'put');
-      const handler = route.stack[0].handle;
+      const handler = route.stack[route.stack.length - 1].handle;
       const req = {};
       const res = {};
       const next = jest.fn();
@@ -141,7 +146,7 @@ describe('challenge.routes', () => {
 
     it('should call controller.remove', () => {
       const route = findRoute('/:id', 'delete');
-      const handler = route.stack[0].handle;
+      const handler = route.stack[route.stack.length - 1].handle;
       const req = {};
       const res = {};
       const next = jest.fn();

@@ -10,6 +10,11 @@ jest.mock('../../config/auth', () => ({
   getAuth: jest.fn(() => ({})),
 }));
 
+const mockValidate = jest.fn((req, res, next) => next());
+jest.mock('../../middlewares/validate', () => ({
+  validate: jest.fn(() => mockValidate),
+}));
+
 const mockController = {
   login: jest.fn(),
   logout: jest.fn(),
@@ -40,13 +45,21 @@ describe('auth.routes', () => {
 
     it('should not apply requireAuth middleware', () => {
       const route = findRoute('/login');
-      // only the handler, no middleware
-      expect(route.stack).toHaveLength(1);
+      const hasRequireAuth = route.stack.some(
+        (l) => l.handle === mockRequireAuth,
+      );
+      expect(hasRequireAuth).toBe(false);
+    });
+
+    it('should apply validate middleware', () => {
+      const route = findRoute('/login');
+      const hasValidate = route.stack.some((l) => l.handle === mockValidate);
+      expect(hasValidate).toBe(true);
     });
 
     it('should call controller.login', () => {
       const route = findRoute('/login');
-      const handler = route.stack[0].handle;
+      const handler = route.stack[route.stack.length - 1].handle;
       const req = {};
       const res = {};
       const next = jest.fn();
@@ -66,14 +79,15 @@ describe('auth.routes', () => {
 
     it('should apply requireAuth middleware', () => {
       const route = findRoute('/logout');
-      // middleware + handler
-      expect(route.stack).toHaveLength(2);
-      expect(route.stack[0].handle).toBe(mockRequireAuth);
+      const hasRequireAuth = route.stack.some(
+        (l) => l.handle === mockRequireAuth,
+      );
+      expect(hasRequireAuth).toBe(true);
     });
 
     it('should call controller.logout', () => {
       const route = findRoute('/logout');
-      const handler = route.stack[1].handle;
+      const handler = route.stack[route.stack.length - 1].handle;
       const req = {};
       const res = {};
       const next = jest.fn();
@@ -93,13 +107,21 @@ describe('auth.routes', () => {
 
     it('should apply requireAuth middleware', () => {
       const route = findRoute('/change-password');
-      expect(route.stack).toHaveLength(2);
-      expect(route.stack[0].handle).toBe(mockRequireAuth);
+      const hasRequireAuth = route.stack.some(
+        (l) => l.handle === mockRequireAuth,
+      );
+      expect(hasRequireAuth).toBe(true);
+    });
+
+    it('should apply validate middleware', () => {
+      const route = findRoute('/change-password');
+      const hasValidate = route.stack.some((l) => l.handle === mockValidate);
+      expect(hasValidate).toBe(true);
     });
 
     it('should call controller.changePassword', () => {
       const route = findRoute('/change-password');
-      const handler = route.stack[1].handle;
+      const handler = route.stack[route.stack.length - 1].handle;
       const req = {};
       const res = {};
       const next = jest.fn();
