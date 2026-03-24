@@ -1,7 +1,5 @@
 const { AppError } = require('../utils/AppError');
 
-const ALLOWED_DIFFICULTIES = ['easy', 'medium', 'hard'];
-
 class ChallengeService {
   constructor(challengeRepository) {
     this.challengeRepository = challengeRepository;
@@ -11,13 +9,6 @@ class ChallengeService {
     const teacher = await this.challengeRepository.findTeacherByUserId(userId);
     if (!teacher)
       throw new AppError(403, 'Only teachers can create challenges');
-
-    if (data.difficulty && !ALLOWED_DIFFICULTIES.includes(data.difficulty)) {
-      throw new AppError(
-        400,
-        `Difficulty must be one of: ${ALLOWED_DIFFICULTIES.join(', ')}`,
-      );
-    }
 
     const challenge = await this.challengeRepository.create({
       title: data.title,
@@ -50,13 +41,6 @@ class ChallengeService {
       if (!teacher || challenge.teacherId !== teacher.id) {
         throw new AppError(403, 'You can only update your own challenges');
       }
-    }
-
-    if (data.difficulty && !ALLOWED_DIFFICULTIES.includes(data.difficulty)) {
-      throw new AppError(
-        400,
-        `Difficulty must be one of: ${ALLOWED_DIFFICULTIES.join(', ')}`,
-      );
     }
 
     const updated = await this.challengeRepository.update(id, {
