@@ -75,6 +75,17 @@ model Teacher {
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
   challenges         Challenge[]
+  turmas             Turma[]
+}
+
+model Turma {
+  id        String    @id @default(cuid())
+  name      String
+  teacherId String
+  teacher   Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  students  Student[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Challenge {
@@ -93,6 +104,8 @@ model Student {
   id          String       @id @default(cuid())
   userId      String       @unique
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  turmaId     String?
+  turma       Turma?       @relation(fields: [turmaId], references: [id], onDelete: SetNull)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   submissions Submission[]
