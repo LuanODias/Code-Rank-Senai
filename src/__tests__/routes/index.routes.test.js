@@ -2,11 +2,15 @@ const mockAuthRouter = jest.fn();
 const mockAdminRouter = jest.fn();
 const mockTeacherRouter = jest.fn();
 const mockChallengeRouter = jest.fn();
+const mockStudentRouter = jest.fn();
+const mockSubmissionRouter = jest.fn();
 
 jest.mock('../../routes/auth.routes', () => mockAuthRouter);
 jest.mock('../../routes/admin.routes', () => mockAdminRouter);
 jest.mock('../../routes/teacher.routes', () => mockTeacherRouter);
 jest.mock('../../routes/challenge.routes', () => mockChallengeRouter);
+jest.mock('../../routes/student.routes', () => mockStudentRouter);
+jest.mock('../../routes/submission.routes', () => mockSubmissionRouter);
 
 const router = require('../../routes/index');
 
@@ -51,6 +55,16 @@ describe('index.routes', () => {
 
     it('should mount challenge routes at /challenges', () => {
       const layer = router.stack.find((l) => l.handle === mockChallengeRouter);
+      expect(layer).toBeDefined();
+    });
+
+    it('should mount student routes at /students', () => {
+      const layer = router.stack.find((l) => l.handle === mockStudentRouter);
+      expect(layer).toBeDefined();
+    });
+
+    it('should mount submission routes at /submissions', () => {
+      const layer = router.stack.find((l) => l.handle === mockSubmissionRouter);
       expect(layer).toBeDefined();
     });
   });
