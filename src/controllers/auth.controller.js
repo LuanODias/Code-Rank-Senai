@@ -29,7 +29,6 @@ class AuthController {
         req.user.id,
         currentPassword,
         newPassword,
-        req.headers,
       );
       res.json(result);
     } catch (err) {

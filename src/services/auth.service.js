@@ -1,4 +1,5 @@
 const { fromNodeHeaders } = require('better-auth/node');
+const { hashPassword, verifyPassword } = require('better-auth/crypto');
 const { AppError } = require('../utils/AppError');
 
 class AuthService {
@@ -40,11 +41,19 @@ class AuthService {
     });
   }
 
-  async changePassword(userId, currentPassword, newPassword, headers) {
-    await this.auth.api.changePassword({
-      body: { currentPassword, newPassword, revokeOtherSessions: false },
-      headers: fromNodeHeaders(headers),
+  async changePassword(userId, currentPassword, newPassword) {
+    const account = await this.authRepository.findAccountByUserId(userId);
+    if (!account?.password)
+      throw new AppError(400, 'Account has no password set');
+
+    const valid = await verifyPassword({
+      hash: account.password,
+      password: currentPassword,
     });
+    if (!valid) throw new AppError(401, 'Current password is incorrect');
+
+    const hash = await hashPassword(newPassword);
+    await this.authRepository.updatePasswordHash(userId, hash);
 
     const teacher = await this.authRepository.findTeacherByUserId(userId);
     if (teacher?.mustChangePassword) {

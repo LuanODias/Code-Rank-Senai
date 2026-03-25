@@ -7,6 +7,17 @@ class AuthRepository {
     return this.prisma.user.findUnique({ where: { email } });
   }
 
+  async findAccountByUserId(userId) {
+    return this.prisma.account.findFirst({ where: { userId } });
+  }
+
+  async updatePasswordHash(userId, hash) {
+    await this.prisma.account.updateMany({
+      where: { userId },
+      data: { password: hash },
+    });
+  }
+
   async findTeacherByUserId(userId) {
     return this.prisma.teacher.findUnique({ where: { userId } });
   }
