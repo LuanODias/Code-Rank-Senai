@@ -22,7 +22,11 @@ class AdminService {
 
     await this.adminRepository.updateUserRole(result.user.id, 'admin');
 
-    const { token } = this.generateToken(data.email);
+    const token = jwt.sign(
+      { type: 'api_token', label: data.email },
+      env.ADMIN_SECRET,
+      { expiresIn: '365d' },
+    );
 
     return {
       id: result.user.id,
@@ -38,15 +42,6 @@ class AdminService {
     if (!user) throw new AppError(404, 'Admin not found');
     if (user.role !== 'admin') throw new AppError(400, 'User is not an admin');
     await this.adminRepository.deleteUser(userId);
-  }
-
-  generateToken(label) {
-    const token = jwt.sign(
-      { type: 'api_token', label: label ?? 'default' },
-      env.ADMIN_SECRET,
-      { expiresIn: '365d' },
-    );
-    return { token };
   }
 }
 

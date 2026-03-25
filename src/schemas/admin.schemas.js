@@ -6,8 +6,4 @@ const createAdminSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
-const generateTokenSchema = z.object({
-  label: z.string().optional(),
-});
-
-module.exports = { createAdminSchema, generateTokenSchema };
+module.exports = { createAdminSchema };

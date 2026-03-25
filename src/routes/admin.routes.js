@@ -1,10 +1,7 @@
 const { Router } = require('express');
 const { makeAdminController } = require('../factories/admin.factory');
 const { validate } = require('../middlewares/validate');
-const {
-  createAdminSchema,
-  generateTokenSchema,
-} = require('../schemas/admin.schemas');
+const { createAdminSchema } = require('../schemas/admin.schemas');
 const { env } = require('../config/env');
 
 const router = Router();
@@ -62,19 +59,7 @@ const requireAdminSecret = (req, res, next) => {
  *           example: admin
  *         token:
  *           type: string
- *           description: JWT de API válido por 365 dias para criar professores
- *           example: eyJhbGci...
- *     TokenRequest:
- *       type: object
- *       properties:
- *         label:
- *           type: string
- *           example: postman-local
- *     TokenResponse:
- *       type: object
- *       properties:
- *         token:
- *           type: string
+ *           description: JWT válido por 365 dias — use como Authorization Bearer para criar professores
  *           example: eyJhbGci...
  */
 
@@ -148,42 +133,4 @@ router.post(
 router.delete('/:userId', requireAdminSecret, (req, res, next) =>
   controller.remove(req, res, next),
 );
-
-/**
- * @openapi
- * /admin/token:
- *   post:
- *     tags: [Admin]
- *     summary: Gera um token JWT para criação de professores
- *     description: O token retornado pode ser usado como `Authorization: Bearer <token>` nas rotas de professores.
- *     security:
- *       - adminSecret: []
- *     parameters:
- *       - in: header
- *         name: x-admin-secret
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/TokenRequest'
- *     responses:
- *       200:
- *         description: Token gerado com sucesso (válido por 365 dias)
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/TokenResponse'
- *       401:
- *         description: Admin secret inválido
- */
-router.post(
-  '/token',
-  requireAdminSecret,
-  validate(generateTokenSchema),
-  (req, res, next) => controller.generateToken(req, res, next),
-);
-
 module.exports = router;

@@ -20,15 +20,6 @@ class AdminController {
       next(err);
     }
   }
-
-  generateToken(req, res, next) {
-    try {
-      const result = this.adminService.generateToken(req.body.label);
-      res.json(result);
-    } catch (err) {
-      next(err);
-    }
-  }
 }
 
 module.exports = { AdminController };
