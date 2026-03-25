@@ -10,6 +10,9 @@ class StudentService {
   }
 
   async create(data) {
+    const turma = await this.studentRepository.findTurmaById(data.turmaId);
+    if (!turma) throw new AppError(404, 'Turma not found');
+
     const existing = await this.studentRepository.findByEmail(data.email);
     if (existing) throw new AppError(409, 'Email already in use');
 
@@ -20,7 +23,10 @@ class StudentService {
     });
 
     await this.studentRepository.updateUserRole(result.user.id, 'student');
-    const student = await this.studentRepository.create(result.user.id);
+    const student = await this.studentRepository.create(
+      result.user.id,
+      data.turmaId,
+    );
     return this.toDTO(student, defaultPassword);
   }
 
@@ -54,6 +60,10 @@ class StudentService {
       userId: student.userId,
       name: student.user.name,
       email: student.user.email,
+      turmaId: student.turmaId,
+      turma: student.turma
+        ? { id: student.turma.id, name: student.turma.name }
+        : null,
       ...(defaultPassword && { defaultPassword }),
       createdAt: student.createdAt,
       updatedAt: student.updatedAt,

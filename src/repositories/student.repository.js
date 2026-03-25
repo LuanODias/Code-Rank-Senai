@@ -10,18 +10,24 @@ class StudentRepository {
   async findById(id) {
     return this.prisma.student.findUnique({
       where: { id },
-      include: { user: true },
+      include: { user: true, turma: true },
     });
   }
 
   async findAll() {
-    return this.prisma.student.findMany({ include: { user: true } });
+    return this.prisma.student.findMany({
+      include: { user: true, turma: true },
+    });
   }
 
-  async create(userId) {
+  async findTurmaById(turmaId) {
+    return this.prisma.turma.findUnique({ where: { id: turmaId } });
+  }
+
+  async create(userId, turmaId) {
     return this.prisma.student.create({
-      data: { userId },
-      include: { user: true },
+      data: { userId, turmaId },
+      include: { user: true, turma: true },
     });
   }
 
