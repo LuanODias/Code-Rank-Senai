@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "dev": "node --watch src/server.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "jest --passWithNoTests",
@@ -58,6 +58,10 @@
     "swagger-ui-react": "^5.32.1",
     "zod": "^4.3.6"
   },
+  "overrides": {
+    "@apidevtools/swagger-parser": "10.1.1",
+    "@apidevtools/json-schema-ref-parser": "11.7.2"
+  },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
@@ -72,7 +76,6 @@
     "husky": "^9.1.7",
     "jest": "^30.3.0",
     "lint-staged": "^16.4.0",
-    "nodemon": "^3.1.14",
     "prisma": "^7.5.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
