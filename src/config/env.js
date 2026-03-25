@@ -13,6 +13,8 @@ const env = {
   BETTER_AUTH_SECRET: getRequired('BETTER_AUTH_SECRET'),
   BETTER_AUTH_URL: getRequired('BETTER_AUTH_URL'),
   ADMIN_SECRET: getRequired('ADMIN_SECRET'),
+  JUDGE0_API_URL: process.env.JUDGE0_API_URL ?? null,
+  JUDGE0_API_KEY: process.env.JUDGE0_API_KEY ?? null,
 };
 
 module.exports = { env };
