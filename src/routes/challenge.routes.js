@@ -6,6 +6,7 @@ const { validate } = require('../middlewares/validate');
 const {
   createChallengeSchema,
   updateChallengeSchema,
+  createTestCaseSchema,
 } = require('../schemas/challenge.schemas');
 const { getAuth } = require('../config/auth');
 
@@ -259,5 +260,15 @@ router.put('/:id', validate(updateChallengeSchema), (req, res, next) =>
  *         description: Sem permissão
  */
 router.delete('/:id', (req, res, next) => controller.remove(req, res, next));
+
+router.post(
+  '/:id/test-cases',
+  validate(createTestCaseSchema),
+  (req, res, next) => controller.addTestCase(req, res, next),
+);
+
+router.delete('/:id/test-cases/:testCaseId', (req, res, next) =>
+  controller.removeTestCase(req, res, next),
+);
 
 module.exports = router;

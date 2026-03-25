@@ -18,4 +18,13 @@ const updateChallengeSchema = z.object({
   difficulty: difficultyEnum.optional(),
 });
 
-module.exports = { createChallengeSchema, updateChallengeSchema };
+const createTestCaseSchema = z.object({
+  input: z.string().default(''),
+  expected: z.string().min(1, 'Expected output is required'),
+});
+
+module.exports = {
+  createChallengeSchema,
+  updateChallengeSchema,
+  createTestCaseSchema,
+};

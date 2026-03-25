@@ -3,8 +3,9 @@ const { AppError } = require('../utils/AppError');
 const DIFFICULTY_POINTS = { easy: 10, medium: 20, hard: 30 };
 
 class SubmissionService {
-  constructor(submissionRepository) {
+  constructor(submissionRepository, judgeService = null) {
     this.submissionRepository = submissionRepository;
+    this.judgeService = judgeService;
   }
 
   async submit(userId, data) {
@@ -22,6 +23,34 @@ class SubmissionService {
       code: data.code,
       language: data.language,
     });
+
+    if (this.judgeService && challenge.testCases.length > 0) {
+      try {
+        const result = await this.judgeService.evaluate(
+          data.code,
+          data.language,
+          challenge.testCases,
+        );
+
+        const status = result.passed ? 'accepted' : 'rejected';
+        const points = result.passed
+          ? (DIFFICULTY_POINTS[challenge.difficulty] ?? 10)
+          : 0;
+
+        const updated = await this.submissionRepository.update(submission.id, {
+          status,
+          points,
+          ...(result.feedback && { feedback: result.feedback }),
+        });
+
+        return this.toDTO(updated);
+      } catch (err) {
+        console.warn(
+          '[JudgeService] Auto-evaluation failed, submission stays pending:',
+          err.message,
+        );
+      }
+    }
 
     return this.toDTO(submission);
   }

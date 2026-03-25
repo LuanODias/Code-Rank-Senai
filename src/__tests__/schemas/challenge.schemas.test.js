@@ -1,6 +1,7 @@
 const {
   createChallengeSchema,
   updateChallengeSchema,
+  createTestCaseSchema,
 } = require('../../schemas/challenge.schemas');
 
 describe('challenge schemas', () => {
@@ -125,6 +126,35 @@ describe('challenge schemas', () => {
       expect(result.error.issues[0].message).toBe(
         'Difficulty must be one of: easy, medium, hard',
       );
+    });
+  });
+
+  describe('createTestCaseSchema', () => {
+    it('should pass with input and expected', () => {
+      const result = createTestCaseSchema.safeParse({
+        input: '1 2',
+        expected: '3',
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('should default input to empty string when not provided', () => {
+      const result = createTestCaseSchema.safeParse({ expected: '3' });
+      expect(result.success).toBe(true);
+      expect(result.data.input).toBe('');
+    });
+
+    it('should fail when expected is missing', () => {
+      const result = createTestCaseSchema.safeParse({ input: '1 2' });
+      expect(result.success).toBe(false);
+    });
+
+    it('should fail when expected is empty string', () => {
+      const result = createTestCaseSchema.safeParse({
+        input: '1 2',
+        expected: '',
+      });
+      expect(result.success).toBe(false);
     });
   });
 });

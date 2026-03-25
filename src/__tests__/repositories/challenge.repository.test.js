@@ -23,6 +23,16 @@ describe('ChallengeRepository', () => {
     userId: faker.string.uuid(),
   });
 
+  const makeTestCaseRecord = (overrides = {}) => ({
+    id: faker.string.uuid(),
+    challengeId: faker.string.uuid(),
+    input: '1 2',
+    expected: '3',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...overrides,
+  });
+
   const makePrisma = () => ({
     challenge: {
       findUnique: jest.fn(),
@@ -32,6 +42,11 @@ describe('ChallengeRepository', () => {
       delete: jest.fn(),
     },
     teacher: {
+      findUnique: jest.fn(),
+    },
+    testCase: {
+      create: jest.fn(),
+      delete: jest.fn(),
       findUnique: jest.fn(),
     },
   });
@@ -55,7 +70,10 @@ describe('ChallengeRepository', () => {
       // assert
       expect(prisma.challenge.findUnique).toHaveBeenCalledWith({
         where: { id: challenge.id },
-        include: { teacher: { include: { user: true } } },
+        include: {
+          teacher: { include: { user: true } },
+          testCases: { orderBy: { createdAt: 'asc' } },
+        },
       });
       expect(result).toEqual(challenge);
     });
@@ -85,7 +103,10 @@ describe('ChallengeRepository', () => {
 
       // assert
       expect(prisma.challenge.findMany).toHaveBeenCalledWith({
-        include: { teacher: { include: { user: true } } },
+        include: {
+          teacher: { include: { user: true } },
+          testCases: { orderBy: { createdAt: 'asc' } },
+        },
         orderBy: { createdAt: 'desc' },
       });
       expect(result).toEqual(challenges);
@@ -118,7 +139,10 @@ describe('ChallengeRepository', () => {
       // assert
       expect(prisma.challenge.findMany).toHaveBeenCalledWith({
         where: { teacherId },
-        include: { teacher: { include: { user: true } } },
+        include: {
+          teacher: { include: { user: true } },
+          testCases: { orderBy: { createdAt: 'asc' } },
+        },
         orderBy: { createdAt: 'desc' },
       });
       expect(result).toEqual(challenges);
@@ -144,7 +168,10 @@ describe('ChallengeRepository', () => {
       // assert
       expect(prisma.challenge.create).toHaveBeenCalledWith({
         data,
-        include: { teacher: { include: { user: true } } },
+        include: {
+          teacher: { include: { user: true } },
+          testCases: { orderBy: { createdAt: 'asc' } },
+        },
       });
       expect(result).toEqual(challenge);
     });
@@ -166,7 +193,10 @@ describe('ChallengeRepository', () => {
       expect(prisma.challenge.update).toHaveBeenCalledWith({
         where: { id },
         data,
-        include: { teacher: { include: { user: true } } },
+        include: {
+          teacher: { include: { user: true } },
+          testCases: { orderBy: { createdAt: 'asc' } },
+        },
       });
       expect(result).toEqual(updated);
     });
@@ -211,6 +241,88 @@ describe('ChallengeRepository', () => {
 
       // act
       const result = await sut.findTeacherByUserId(faker.string.uuid());
+
+      // assert
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('addTestCase', () => {
+    it('should call prisma.testCase.create with challengeId and data', async () => {
+      // arrange
+      const { sut, prisma } = makeSut();
+      const challengeId = faker.string.uuid();
+      const data = { input: '1 2', expected: '3' };
+      const testCase = makeTestCaseRecord({ challengeId, ...data });
+      prisma.testCase.create.mockResolvedValueOnce(testCase);
+
+      // act
+      const result = await sut.addTestCase(challengeId, data);
+
+      // assert
+      expect(prisma.testCase.create).toHaveBeenCalledWith({
+        data: { challengeId, input: data.input, expected: data.expected },
+      });
+      expect(result).toEqual(testCase);
+    });
+
+    it('should default input to empty string when not provided', async () => {
+      // arrange
+      const { sut, prisma } = makeSut();
+      const challengeId = faker.string.uuid();
+      prisma.testCase.create.mockResolvedValueOnce(makeTestCaseRecord());
+
+      // act
+      await sut.addTestCase(challengeId, { expected: '3' });
+
+      // assert
+      expect(prisma.testCase.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ input: '' }),
+        }),
+      );
+    });
+  });
+
+  describe('removeTestCase', () => {
+    it('should call prisma.testCase.delete with correct id', async () => {
+      // arrange
+      const { sut, prisma } = makeSut();
+      const id = faker.string.uuid();
+      prisma.testCase.delete.mockResolvedValueOnce(undefined);
+
+      // act
+      await sut.removeTestCase(id);
+
+      // assert
+      expect(prisma.testCase.delete).toHaveBeenCalledWith({ where: { id } });
+    });
+  });
+
+  describe('findTestCaseById', () => {
+    it('should call prisma.testCase.findUnique with correct id', async () => {
+      // arrange
+      const { sut, prisma } = makeSut();
+      const testCase = makeTestCaseRecord();
+      prisma.testCase.findUnique.mockResolvedValueOnce(testCase);
+
+      // act
+      const result = await sut.findTestCaseById(testCase.id);
+
+      // assert
+      expect(prisma.testCase.findUnique).toHaveBeenCalledWith({
+        where: { id: testCase.id },
+      });
+      expect(result).toEqual(testCase);
+    });
+
+    it('should return null when test case is not found', async () => {
+      // arrange
+      const { sut, prisma } = makeSut();
+      prisma.testCase.findUnique.mockResolvedValueOnce(null);
+
+      // act
+      const result = await sut.findTestCaseById(faker.string.uuid());
 
       // assert
       expect(result).toBeNull();

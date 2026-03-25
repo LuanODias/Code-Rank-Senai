@@ -50,7 +50,10 @@ class SubmissionRepository {
   }
 
   async findChallengeById(id) {
-    return this.prisma.challenge.findUnique({ where: { id } });
+    return this.prisma.challenge.findUnique({
+      where: { id },
+      include: { testCases: { orderBy: { createdAt: 'asc' } } },
+    });
   }
 }
 

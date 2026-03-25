@@ -9,6 +9,13 @@ describe('ChallengeService', () => {
     ...overrides,
   });
 
+  const makeTestCaseRecord = (overrides = {}) => ({
+    id: faker.string.uuid(),
+    input: '1 2',
+    expected: '3',
+    ...overrides,
+  });
+
   const makeChallengeRecord = (overrides = {}) => ({
     id: faker.string.uuid(),
     title: faker.lorem.sentence(),
@@ -19,6 +26,7 @@ describe('ChallengeService', () => {
       id: faker.string.uuid(),
       user: { name: faker.person.fullName() },
     },
+    testCases: [],
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
@@ -55,6 +63,16 @@ describe('ChallengeService', () => {
     }
 
     async remove() {}
+
+    async addTestCase(challengeId, data) {
+      return makeTestCaseRecord({ challengeId, ...data });
+    }
+
+    async removeTestCase() {}
+
+    async findTestCaseById() {
+      return makeTestCaseRecord();
+    }
   }
 
   const makeSut = () => {
@@ -503,6 +521,166 @@ describe('ChallengeService', () => {
 
       // assert
       expect(removeSpy).toHaveBeenCalledWith(challengeRepository._challenge.id);
+    });
+  });
+
+  describe('addTestCase', () => {
+    it('should throw AppError 404 when challenge is not found', async () => {
+      // arrange
+      const { sut, challengeRepository } = makeSut();
+      jest.spyOn(challengeRepository, 'findById').mockResolvedValueOnce(null);
+
+      // act / assert
+      await expect(
+        sut.addTestCase(faker.string.uuid(), 'admin', faker.string.uuid(), {
+          input: '1 2',
+          expected: '3',
+        }),
+      ).rejects.toThrow(new AppError(404, 'Challenge not found'));
+    });
+
+    it('should throw AppError 403 when teacher does not own the challenge', async () => {
+      // arrange
+      const { sut, challengeRepository } = makeSut();
+      jest
+        .spyOn(challengeRepository, 'findTeacherByUserId')
+        .mockResolvedValueOnce(makeTeacher());
+
+      // act / assert
+      await expect(
+        sut.addTestCase(faker.string.uuid(), 'teacher', faker.string.uuid(), {
+          input: '1 2',
+          expected: '3',
+        }),
+      ).rejects.toThrow(
+        new AppError(403, 'You can only add test cases to your own challenges'),
+      );
+    });
+
+    it('should return the created test case on success', async () => {
+      // arrange
+      const { sut } = makeSut();
+
+      // act
+      const result = await sut.addTestCase(
+        faker.string.uuid(),
+        'admin',
+        faker.string.uuid(),
+        {
+          input: '1 2',
+          expected: '3',
+        },
+      );
+
+      // assert
+      expect(result).toEqual(
+        expect.objectContaining({ id: expect.any(String) }),
+      );
+    });
+  });
+
+  describe('removeTestCase', () => {
+    it('should throw AppError 404 when challenge is not found', async () => {
+      // arrange
+      const { sut, challengeRepository } = makeSut();
+      jest.spyOn(challengeRepository, 'findById').mockResolvedValueOnce(null);
+
+      // act / assert
+      await expect(
+        sut.removeTestCase(
+          faker.string.uuid(),
+          'admin',
+          faker.string.uuid(),
+          faker.string.uuid(),
+        ),
+      ).rejects.toThrow(new AppError(404, 'Challenge not found'));
+    });
+
+    it('should throw AppError 403 when teacher does not own the challenge', async () => {
+      // arrange
+      const { sut, challengeRepository } = makeSut();
+      jest
+        .spyOn(challengeRepository, 'findTeacherByUserId')
+        .mockResolvedValueOnce(makeTeacher());
+
+      // act / assert
+      await expect(
+        sut.removeTestCase(
+          faker.string.uuid(),
+          'teacher',
+          faker.string.uuid(),
+          faker.string.uuid(),
+        ),
+      ).rejects.toThrow(
+        new AppError(
+          403,
+          'You can only remove test cases from your own challenges',
+        ),
+      );
+    });
+
+    it('should throw AppError 404 when test case is not found', async () => {
+      // arrange
+      const { sut, challengeRepository } = makeSut();
+      jest
+        .spyOn(challengeRepository, 'findTestCaseById')
+        .mockResolvedValueOnce(null);
+
+      // act / assert
+      await expect(
+        sut.removeTestCase(
+          faker.string.uuid(),
+          'admin',
+          faker.string.uuid(),
+          faker.string.uuid(),
+        ),
+      ).rejects.toThrow(new AppError(404, 'Test case not found'));
+    });
+
+    it('should call repository.removeTestCase on success', async () => {
+      // arrange
+      const { sut, challengeRepository } = makeSut();
+      const removeSpy = jest.spyOn(challengeRepository, 'removeTestCase');
+
+      // act
+      await sut.removeTestCase(
+        faker.string.uuid(),
+        'admin',
+        faker.string.uuid(),
+        faker.string.uuid(),
+      );
+
+      // assert
+      expect(removeSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('toDTO', () => {
+    it('should include testCases in the DTO', () => {
+      // arrange
+      const { sut } = makeSut();
+      const testCase = makeTestCaseRecord();
+      const challenge = makeChallengeRecord({ testCases: [testCase] });
+
+      // act
+      const result = sut.toDTO(challenge);
+
+      // assert
+      expect(result.testCases).toEqual([
+        { id: testCase.id, input: testCase.input, expected: testCase.expected },
+      ]);
+    });
+
+    it('should return empty testCases array when challenge has none', () => {
+      // arrange
+      const { sut } = makeSut();
+      const challenge = makeChallengeRecord({ testCases: [] });
+
+      // act
+      const result = sut.toDTO(challenge);
+
+      // assert
+      expect(result.testCases).toEqual([]);
     });
   });
 });

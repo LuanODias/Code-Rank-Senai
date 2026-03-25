@@ -220,6 +220,7 @@ describe('SubmissionRepository', () => {
       // assert
       expect(prisma.challenge.findUnique).toHaveBeenCalledWith({
         where: { id },
+        include: { testCases: { orderBy: { createdAt: 'asc' } } },
       });
       expect(result).toEqual(challenge);
     });

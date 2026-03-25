@@ -14,6 +14,7 @@ describe('SubmissionService', () => {
     id: faker.string.uuid(),
     title: faker.lorem.sentence(),
     difficulty: 'easy',
+    testCases: [],
     ...overrides,
   });
 
@@ -132,6 +133,103 @@ describe('SubmissionService', () => {
           status: expect.any(String),
         }),
       );
+    });
+
+    it('should auto-evaluate and mark accepted when all test cases pass', async () => {
+      // arrange
+      const { submissionRepository } = makeSut();
+      const testCases = [{ input: '1 2', expected: '3' }];
+      jest
+        .spyOn(submissionRepository, 'findChallengeById')
+        .mockResolvedValueOnce(
+          makeChallengeRecord({ difficulty: 'easy', testCases }),
+        );
+      const updateSpy = jest.spyOn(submissionRepository, 'update');
+
+      const judgeService = {
+        evaluate: jest
+          .fn()
+          .mockResolvedValueOnce({ passed: true, feedback: null }),
+      };
+      const sut = new SubmissionService(submissionRepository, judgeService);
+
+      // act
+      await sut.submit(faker.string.uuid(), makeData());
+
+      // assert
+      expect(updateSpy).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ status: 'accepted', points: 10 }),
+      );
+    });
+
+    it('should auto-evaluate and mark rejected when a test case fails', async () => {
+      // arrange
+      const { submissionRepository } = makeSut();
+      const testCases = [{ input: '1 2', expected: '3' }];
+      jest
+        .spyOn(submissionRepository, 'findChallengeById')
+        .mockResolvedValueOnce(
+          makeChallengeRecord({ difficulty: 'easy', testCases }),
+        );
+      const updateSpy = jest.spyOn(submissionRepository, 'update');
+
+      const judgeService = {
+        evaluate: jest
+          .fn()
+          .mockResolvedValueOnce({ passed: false, feedback: 'Wrong answer' }),
+      };
+      const sut = new SubmissionService(submissionRepository, judgeService);
+
+      // act
+      await sut.submit(faker.string.uuid(), makeData());
+
+      // assert
+      expect(updateSpy).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ status: 'rejected', points: 0 }),
+      );
+    });
+
+    it('should stay pending when challenge has no test cases', async () => {
+      // arrange
+      const { submissionRepository } = makeSut();
+      jest
+        .spyOn(submissionRepository, 'findChallengeById')
+        .mockResolvedValueOnce(makeChallengeRecord({ testCases: [] }));
+      const updateSpy = jest.spyOn(submissionRepository, 'update');
+      const judgeService = { evaluate: jest.fn() };
+      const sut = new SubmissionService(submissionRepository, judgeService);
+
+      // act
+      const result = await sut.submit(faker.string.uuid(), makeData());
+
+      // assert
+      expect(judgeService.evaluate).not.toHaveBeenCalled();
+      expect(updateSpy).not.toHaveBeenCalled();
+      expect(result.status).toBe('pending');
+    });
+
+    it('should stay pending when judge service throws', async () => {
+      // arrange
+      const { submissionRepository } = makeSut();
+      const testCases = [{ input: '1 2', expected: '3' }];
+      jest
+        .spyOn(submissionRepository, 'findChallengeById')
+        .mockResolvedValueOnce(makeChallengeRecord({ testCases }));
+      const updateSpy = jest.spyOn(submissionRepository, 'update');
+
+      const judgeService = {
+        evaluate: jest.fn().mockRejectedValueOnce(new Error('timeout')),
+      };
+      const sut = new SubmissionService(submissionRepository, judgeService);
+
+      // act
+      const result = await sut.submit(faker.string.uuid(), makeData());
+
+      // assert
+      expect(updateSpy).not.toHaveBeenCalled();
+      expect(result.status).toBe('pending');
     });
   });
 

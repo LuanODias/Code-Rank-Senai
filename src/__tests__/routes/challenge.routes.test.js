@@ -17,6 +17,8 @@ const mockController = {
   getById: jest.fn(),
   update: jest.fn(),
   remove: jest.fn(),
+  addTestCase: jest.fn(),
+  removeTestCase: jest.fn(),
 };
 
 jest.mock('../../factories/challenge.factory', () => ({
@@ -154,6 +156,50 @@ describe('challenge.routes', () => {
       handler(req, res, next);
 
       expect(mockController.remove).toHaveBeenCalledWith(req, res, next);
+    });
+  });
+
+  describe('POST /:id/test-cases', () => {
+    it('should register the route', () => {
+      const route = findRoute('/:id/test-cases', 'post');
+      expect(route).toBeDefined();
+      expect(route.methods.post).toBe(true);
+    });
+
+    it('should call controller.addTestCase', () => {
+      const route = findRoute('/:id/test-cases', 'post');
+      const handler = route.stack[route.stack.length - 1].handle;
+      const req = {};
+      const res = {};
+      const next = jest.fn();
+
+      handler(req, res, next);
+
+      expect(mockController.addTestCase).toHaveBeenCalledWith(req, res, next);
+    });
+  });
+
+  describe('DELETE /:id/test-cases/:testCaseId', () => {
+    it('should register the route', () => {
+      const route = findRoute('/:id/test-cases/:testCaseId', 'delete');
+      expect(route).toBeDefined();
+      expect(route.methods.delete).toBe(true);
+    });
+
+    it('should call controller.removeTestCase', () => {
+      const route = findRoute('/:id/test-cases/:testCaseId', 'delete');
+      const handler = route.stack[route.stack.length - 1].handle;
+      const req = {};
+      const res = {};
+      const next = jest.fn();
+
+      handler(req, res, next);
+
+      expect(mockController.removeTestCase).toHaveBeenCalledWith(
+        req,
+        res,
+        next,
+      );
     });
   });
 });

@@ -59,6 +59,34 @@ class ChallengeController {
       next(err);
     }
   }
+
+  async addTestCase(req, res, next) {
+    try {
+      const testCase = await this.challengeService.addTestCase(
+        req.user.id,
+        req.user.role,
+        req.params.id,
+        req.body,
+      );
+      res.status(201).json(testCase);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async removeTestCase(req, res, next) {
+    try {
+      await this.challengeService.removeTestCase(
+        req.user.id,
+        req.user.role,
+        req.params.id,
+        req.params.testCaseId,
+      );
+      res.status(204).send();
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 module.exports = { ChallengeController };

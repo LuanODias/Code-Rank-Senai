@@ -67,6 +67,46 @@ class ChallengeService {
     await this.challengeRepository.remove(id);
   }
 
+  async addTestCase(userId, role, challengeId, data) {
+    const challenge = await this.challengeRepository.findById(challengeId);
+    if (!challenge) throw new AppError(404, 'Challenge not found');
+
+    if (role === 'teacher') {
+      const teacher =
+        await this.challengeRepository.findTeacherByUserId(userId);
+      if (!teacher || challenge.teacherId !== teacher.id) {
+        throw new AppError(
+          403,
+          'You can only add test cases to your own challenges',
+        );
+      }
+    }
+
+    return this.challengeRepository.addTestCase(challengeId, data);
+  }
+
+  async removeTestCase(userId, role, challengeId, testCaseId) {
+    const challenge = await this.challengeRepository.findById(challengeId);
+    if (!challenge) throw new AppError(404, 'Challenge not found');
+
+    if (role === 'teacher') {
+      const teacher =
+        await this.challengeRepository.findTeacherByUserId(userId);
+      if (!teacher || challenge.teacherId !== teacher.id) {
+        throw new AppError(
+          403,
+          'You can only remove test cases from your own challenges',
+        );
+      }
+    }
+
+    const testCase =
+      await this.challengeRepository.findTestCaseById(testCaseId);
+    if (!testCase) throw new AppError(404, 'Test case not found');
+
+    await this.challengeRepository.removeTestCase(testCaseId);
+  }
+
   toDTO(challenge) {
     return {
       id: challenge.id,
@@ -77,6 +117,11 @@ class ChallengeService {
         id: challenge.teacher.id,
         name: challenge.teacher.user.name,
       },
+      testCases: (challenge.testCases ?? []).map((tc) => ({
+        id: tc.id,
+        input: tc.input,
+        expected: tc.expected,
+      })),
       createdAt: challenge.createdAt,
       updatedAt: challenge.updatedAt,
     };

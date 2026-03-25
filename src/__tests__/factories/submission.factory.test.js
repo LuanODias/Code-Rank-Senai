@@ -47,7 +47,7 @@ describe('makeSubmissionController', () => {
 
     // assert
     const repositoryInstance = SubmissionRepository.mock.instances[0];
-    expect(SubmissionService).toHaveBeenCalledWith(repositoryInstance);
+    expect(SubmissionService).toHaveBeenCalledWith(repositoryInstance, null);
   });
 
   it('should instantiate SubmissionController with service', () => {

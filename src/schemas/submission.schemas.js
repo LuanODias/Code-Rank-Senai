@@ -1,9 +1,17 @@
 const { z } = require('zod');
+const { LANGUAGE_IDS } = require('../services/judge.service');
+
+const SUPPORTED_LANGUAGES = Object.keys(LANGUAGE_IDS);
 
 const createSubmissionSchema = z.object({
   challengeId: z.string().min(1, 'Challenge ID is required'),
   code: z.string().min(1, 'Code is required'),
-  language: z.string().min(1, 'Language is required').default('javascript'),
+  language: z
+    .string()
+    .refine((val) => SUPPORTED_LANGUAGES.includes(val), {
+      message: `Language must be one of: ${SUPPORTED_LANGUAGES.join(', ')}`,
+    })
+    .default('javascript'),
 });
 
 const evaluateSubmissionSchema = z.object({
